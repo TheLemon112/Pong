@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bourja - Pong</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lexend">
+    <style>
+        #titolo {
+            width: 100%;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #gioco {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            color: #DEDEDE;
+            font-family: "Lexend", sans-serif;
+            font-size: 50px;
+            text-align: center;
+        }
+
+        h2{
+            color: #DEDEDE;
+            font-family: "Lexend", sans-serif;
+            font-size: 40px;
+            text-align: center;
+        }
+
+        body {
+            background-color: #222222;
+            overflow-x: hidden;
+        }
+
+        #canva {
+            border: 2px solid black;
+        }
+
+        #score {
+            width: 100%;
+            height: 400px;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #bottoni {
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            gap: 100px;
+            align-items: center;
+        }
+
+        .controls{
+            color: #DEDEDE; 
+            font-family: "Lexend", "sans-serif"; 
+            font-size: 30px;
+        }
+
+        .options {
+            opacity: 1;
+            height: 50px;
+            width: 150px;
+            font-size: 20px;
+            color: #222222;
+            background-color: #A0A0A0;
+            border: 0px;
+            border-radius: 3px;
+            font-family: "Lexend", "sans-serif";
+        }
+
+        .dropdown{
+            opacity: 1;
+            height: 50px;
+            width: 150px;
+            font-size: 20px;
+            color: #222222;
+            background-color: #A0A0A0;
+            border: 0px;
+            border-radius: 3px;
+            font-family: "Lexend", "sans-serif";
+            display: flex; 
+            justify-content: space-evenly; 
+            align-items: center; 
+            flex-direction: column;            
+        }
+
+        .options:hover {
+            cursor: pointer;
+            background-color: #e0e0e0;
+        }
+        .dropdown:hover {
+            cursor: pointer;
+            background-color: #e0e0e0;
+        }
+        #container{
+            display: flex; 
+            justify-content: space-evenly; 
+            align-items: center; 
+            flex-direction: column;
+        }
+        #ranking{
+            height: 320px;
+            width: 300px;
+        }
+    </style>
+</head>
+
+<body onload="menu0()">
+    <div id="titolo">
+        <h1>Pong</h1>
+    </div>
+    <div id="score"></div>
+    <div id="gioco">
+        <div id="overlay0">
+            <h2>Controls</h2>
+            <p class="controls">A, D or Arrows = Move platform</p>
+            <p class="controls">Esc = Pause</p>
+            <button class="options" onclick="restart()">Got it!</button>
+        </div>
+        <div id="overlay1">
+            <button class="options" onclick="start()">Start</button>
+            <button class="options">Options</button>
+            <button class="options" onclick="leaderboard()">Leaderboard</button>
+        </div>
+        <div id="overlay2">
+            <button class="options" onclick="continueGame()">Continue</button>
+            <button class="options">Options</button>
+            <button class="options" onclick="quit()">Quit</button>
+        </div>
+        <div id="overlay3">
+            <p id="finalScore"></p>
+            <button class="options" onclick="restart()">Play again!</button>
+        </div>
+        <div id="leaderboard">
+            <div id="container">
+                <table id="ranking"></table>
+            </div>
+        </div>
+
+        <!-- <div id="overlay4">
+            <div class="dropdown" id="speed">
+                <button></button>
+                <button></button>
+                <button></button>
+            </div>
+            <div class="dropdown" id="size1">
+                <button></button>
+                <button></button>
+                <button></button></div>
+            <div class="dropdown" id="size2">
+                <button></button>
+                <button></button>
+                <button></button>
+            </div>
+        </div> -->
+        <canvas width="600" height="400" id="canva"></canvas>
+    </div>
+</body>
+<script>
+    var cnv = document.getElementById("canva");
+    var ctxR = cnv.getContext('2d');
+    var ctxC = cnv.getContext('2d');
+
+    var xR = (canva.width) / 2 - 50;
+    var yR = (canva.height) - 30;
+    var wR = 100;
+    var hR = 15;
+
+    var dir = -1;
+    var dirCheck = -1;
+
+    var pp = 5;
+
+    var wh = 10;
+
+    var xC = (canva.width) / 2;
+    var yC = yR - wh;
+
+    var c = 0;
+
+    var v = 25;
+
+    var intv = 0;
+
+    var st = 0;
+
+    var pti = 0;
+
+    var xB = 0;
+    var yB = 0;
+
+    var lB = 20;
+
+    var ctxB = cnv.getContext('2d');
+
+    var del0 = document.getElementById("overlay0");
+    var del1 = document.getElementById("overlay1");
+    var del2 = document.getElementById("overlay2");
+    var del3 = document.getElementById("overlay3");
+    var del4 = document.getElementById("overlay4");
+    var ldrb = document.getElementById("leaderboard");
+
+    del1.setAttribute("style", "display: none");
+    del2.setAttribute("style", "display: none");
+    del3.setAttribute("style", "display: none");
+    ldrb.setAttribute("style", "display: none");
+
+    var play = false;
+
+    var pt = document.createElement('p');
+
+    /*var ovl = document.getElementById("speed");
+    ovl.innerHTML="Ball speed";
+    ovl = document.getElementById("size1");
+    ovl.innerHTML="Ball size";
+    ovl = document.getElementById("size2");
+    ovl.innerHTML="Block size";*/
+    
+    pt.setAttribute("id", "punteggio");
+    pt.setAttribute("style", "color: #606060; font-size: 50px; font-family: Lexend, sans-serif; z-index: -1;");
+
+    function menu0(){
+        del0.setAttribute("style", "display: flex; justify-content: center; align-items: center; flex-direction: column; width: 604px; height: 404px; position: absolute; left: 50% - 302px; background-color: black; opacity: 0.8;");
+    }
+
+    function menu1(){
+        del0.setAttribute("style", "display: none");
+        del3.setAttribute("style", "display: none");
+        del1.setAttribute("style", "display: flex; justify-content: space-evenly; align-items: center; flex-direction: column; width: 604px; height: 404px; position: absolute; left: 50% - 302px; background-color: black; opacity: 0.8;");
+    }
+
+    function menu2(){
+        del2.setAttribute("style", "display: flex; justify-content: space-evenly; align-items: center; flex-direction: column; width: 604px; height: 404px; position: absolute; left: 50% - 302px; background-color: black; opacity: 0.8;");
+    }
+
+    function start() {
+        play = true;
+        del1.setAttribute("style", "display: none");
+        drawBlock(), drawPlatform(), drawBall(), punti(), interval();
+    }
+    function continueGame(){
+        del2.setAttribute("style", "display: none");
+        interval();
+    }
+    function pause(){
+        menu2();
+        clearInterval(intv);
+    }
+    function quit(){
+        del2.setAttribute("style", "display: none");
+        restart();
+        menu1();
+    }
+    function leaderboard(){
+        del1.setAttribute("style", "display: none");
+        ldrb.setAttribute("style", "display: flex; justify-content: space-evenly; align-items: center; flex-direction: column; width: 604px; height: 404px; position: absolute; left: 50% - 302px; background-color: black; opacity: 0.8;");
+        createTable();
+    }
+    function loss(){
+        play = false;
+
+        var t = document.getElementById("finalScore");
+
+        t.setAttribute("style", "color: #DEDEDE; font-family: Lexend, sans-serif; font-size: 30px;")
+        t.innerHTML = "You scored " + pti + " points!";
+
+        del3.setAttribute("style", "display: flex; justify-content: space-evenly; align-items: center; flex-direction: column; width: 604px; height: 404px; position: absolute; left: 50% - 302px; background-color: black; opacity: 0.8;");
+    }
+    function restart() {
+        play = false;
+        //alert("Hai vinto!\nPunti totali: " + pti + "");
+        ctxC.clearRect(xC - wh, yC - wh, wh * 2, wh * 2);
+        xC = (canva.width) / 2;
+        yC = yR - wh;
+        st = 0;
+        dir = -1;
+        dirCheck = -1;
+        ctxR.clearRect(xR, yR, wR, hR);
+        xR = (canva.width) / 2 - 50;
+        yR = (canva.height) - 30;
+        v = 25;
+        ctxB.clearRect(xB, yB, 3 * lB, lB);
+        xB = (Math.round(Math.random() * 48)) * 10 + 60;
+        yB = (Math.round(Math.random() * 20)) * 10;
+        //v = 100;
+        pti = 0;
+        pt.innerHTML="";
+
+        menu1();
+        clearInterval(intv);
+    }
+
+    function drawPlatform() {
+        if (play) {
+            ctxR.beginPath();
+            ctxR.fillStyle = "#DEDEDE";
+            ctxR.fillRect(xR, yR, wR, hR);
+            ctxR.closePath();
+        }
+    }
+
+    window.addEventListener("keydown", movePlatform);
+
+    function movePlatform(event) {
+        if (play) {
+            ctxR.clearRect(xR, yR, wR, hR);
+
+            switch (event.key) {
+                case 'ArrowLeft':
+                    dirCheck = 1;
+                    xR = xR - 30;
+                    break;
+                case 'a':
+                    dirCheck = 1;
+                    xR = xR - 30;
+                    break;
+                case 'ArrowRight':
+                    dirCheck = 0;
+                    xR = xR + 30;
+                    break;
+                case 'd':
+                    dirCheck = 0;
+                    xR = xR + 30;
+                    break;
+                case 'Escape':
+                    pause();
+            }
+
+            if (xR < 0) {
+                xR = 0;
+            }
+            if (xR > canva.width - wR) {
+                xR = canva.width - wR;
+            }
+
+            drawPlatform();
+        }
+    }
+
+    function drawBall() {
+        if (play) {
+            ctxC.beginPath();
+            ctxC.fillStyle = "#555666";
+            ctxC.arc(xC, yC, wh, 0, Math.PI * 2);
+            ctxC.fill();
+            ctxC.closePath();
+        }
+    }
+
+    function interval() {
+        if (play) { intv = setInterval(moveBall, v); }
+    }
+
+    function moveBall() {
+        if (play) {
+            if (v < 20) {
+                pp = 10;
+            }
+            else {
+                if (v > 30) {
+                    pp = 1;
+                }
+                else {
+                    pp = 5;
+                }
+            }
+            switch (c) {
+                case 0:
+                    moveBallDown();
+                    break;
+                case 1:
+                    moveBallUp();
+                    break;
+            }
+            cattura();
+        }
+    }
+    function moveBallDown() {
+        if (play) {
+            if (yC >= canva.height - wh) {
+                loss();
+            }
+            if (yC >= (yR - wh) && xC >= xR && xC <= (xR + wR)) {
+                st++;
+                c = 1;
+                dir = dirCheck;
+                //pti++;
+                /*v = v - v/7.5;
+                console.log(pti);
+                clearInterval(intv);
+                interval();
+                */
+            }
+            else {
+                ctxC.clearRect(xC - wh, yC - wh, wh * 2, wh * 2);
+                if (dir == -1) {
+                    yC = yC + 5;
+                }
+                else {
+                    if (xC < 10) {
+                        dir = 0;
+                    }
+                    if (xC > canva.width - 10) {
+                        dir = 1;
+                    }
+                    switch (dir) {
+                        case 0:
+                            xC = xC + 5;
+                            break;
+                        case 1:
+                            xC = xC - 5;
+                            break;
+                    }
+
+                    yC = yC + 5;
+                }
+                drawBall();
+            }
+        }
+    }
+
+    function moveBallUp() {
+        if (play) {
+            if (yC <= wh) {
+                c = 0;
+            }
+            else {
+                ctxC.clearRect(xC - wh, yC - wh, wh * 2, wh * 2);
+
+                if (xC < 10) {
+                    dir = 0;
+                }
+                if (xC > canva.width - 10) {
+                    dir = 1;
+                }
+
+                switch (dir) {
+                    case 0:
+                        xC = xC + 5;
+                        break;
+                    case 1:
+                        xC = xC - 5;
+                        break;
+                }
+                yC = yC - 5;
+                drawBall();
+            }
+        }
+    }
+
+    function drawBlock() {
+        if (play) {
+            xB = (Math.round(Math.random() * 48)) * 10 + 60;
+            yB = (Math.round(Math.random() * 20)) * 10;
+            if (xB + 3 * lB >= canva.width) {
+                xB = canva.width - 3 * lB;
+            }
+            console.log(xB, yB);
+            ctxB.beginPath();
+            ctxB.fillStyle = "red";
+            ctxB.fillRect(xB, yB, 3 * lB, lB);
+            ctxB.closePath();
+        }
+    }
+
+    function cattura() {
+        if (play) {
+            if (xC + wh >= xB && xC - wh <= xB + lB * 3 && yC + wh >= yB && yC - wh <= yB + lB) {
+                ctxB.clearRect(xB, yB, 3 * lB, lB);
+                pti = pti + pp;
+                if(yC-wh<=yB&&c==1||yC+wh>=yB+lB&&c==0){
+                    dir = (-1*(dir-1));
+                }
+                else{
+                    c = (-1 * (c - 1));
+                }
+                aumento();
+                drawBlock();
+            }
+        }
+    }
+
+    function punti() {
+        if (play) {
+            var gioco = document.getElementById("score");
+            
+            pt.innerHTML = pti;
+
+            gioco.appendChild(pt);
+        }
+    }
+
+    function aumento() {
+        if (play) {
+            var pt = document.getElementById("punteggio");
+
+            pt.innerHTML = pti;
+        }
+    }
+
+    function createTable(){
+        var t = document.getElementById("ranking");
+
+        for(var i = 0; i < 6; i++){
+            var tr = document.createElement("tr");
+
+            tr.setAttribute("style", "border: 1px solid #A0A0A0; border-radius: 4px;");
+
+            for(var j = 0; j < 4; j++){
+                var td = document.createElement("td");
+
+                switch(j){
+                    case 0:
+                        td.setAttribute("style", "text-align: center; font-family: Lexend, sans-serif; font-size: 30px; border: 1px solid #A0A0A0; border-radius: 4px; width: 50px; background-color: #A0A0A0");
+                        break;
+                    case 1:
+                        td.setAttribute("style", "text-align: center; font-family: Lexend, sans-serif; font-size: 30px; border: 1px solid #A0A0A0; border-radius: 4px; width: 150px; background-color: #A0A0A0");
+                        break;
+                    case 2:
+                        td.setAttribute("style", "text-align: center; font-family: Lexend, sans-serif; font-size: 30px; border: 1px solid #A0A0A0; border-radius: 4px; background-color: #A0A0A0");
+                        break;
+                    case 3:
+                        td.setAttribute("style", "text-align: center; font-family: Lexend, sans-serif; font-size: 30px; border: 1px solid #A0A0A0; border-radius: 4px; background-color: #A0A0A0");
+                        break;
+                }
+
+                td.innerHTML="-";
+
+                tr.appendChild(td);
+            }
+
+            t.appendChild(tr);
+        }
+    }
+
+    /*function aumentaVelocità(){
+        v = v - v/7.5;
+        clearInterval(intv);
+        interval();
+    }
+
+    function diminuisciVelocità(){
+        v = v + v/7.5;
+        clearInterval(intv);
+        interval();
+    }*/
+
+    /*var arrB = [{x: 60, y: 40}];
+    var m;
+    var n;
+
+    for(var i = 0; i < 10; i++){
+        switch(i){
+            case 0:
+                m = arrB[i].x;
+                n = arrB[i].y;
+                break;
+            case 5:
+                m = arrB[0].x;
+                arrB[0].y = n+2*lB;
+                break;
+            default:
+                m = m + 4*lB;
+                arrB[i].x = m;
+        }
+    }*/
+
+</script>
+
+
+</html>
